@@ -17,6 +17,7 @@ class BasePage:
             self.driver.get(config.baseurl + url)
 
     def _find(self, locator):
+        # TODO: facilitate using data-test attribute as well as selenium 'By' locators
         try:
             return self._find_all(locator)[0]
         except IndexError:
