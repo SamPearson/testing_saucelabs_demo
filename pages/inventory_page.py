@@ -8,7 +8,7 @@ class InventoryPage(BasePage):
     _item_name = {"by": By.CLASS_NAME, "value": "inventory_item_name"}
     _item_description = {"by": By.CLASS_NAME, "value": "inventory_item_desc"}
     _item_price = {"by": By.CLASS_NAME, "value": "inventory_item_price"}
-    _item_add_button = {"by": By.CLASS_NAME, "value": "btn_inventory"}
+    _item_addremove_button = {"by": By.CLASS_NAME, "value": "btn_inventory"}
 
     _cart_link = {"by": By.CLASS_NAME, "value": "shopping_cart_link"}
     _cart_badge = {"by": By.CLASS_NAME, "value": "shopping_cart_badge"}
@@ -28,7 +28,7 @@ class InventoryPage(BasePage):
         item_elements = self._find_all(self._inventory_item)
         for i in item_elements:
             item_in_cart = False
-            cart_button_text = self._find_child(i, self._item_add_button).text
+            cart_button_text = self._find_child(i, self._item_addremove_button).text
             if 'remove' in cart_button_text.lower():
                 item_in_cart = True
             items.append({
@@ -51,13 +51,23 @@ class InventoryPage(BasePage):
     def add_item_to_cart(self, name):
         item = self.inventory_item(name)
         assert item, f"Cannot add item '{name}' to cart, item not found"
-        self._find_child(item, self._item_add_button).click()
+        self._find_child(item, self._item_addremove_button).click()
 
     def items_in_cart(self):
         badge_element = self._find(self._cart_badge)
         if badge_element:
             return int(badge_element.text)
         return 0
+
+    def remove_all_cart_items(self):
+        if not self.items_in_cart():
+            return
+
+        for item in self.items_in_cart():
+            self._find_child(item, self._item_addremove_button).click()
+
+        i = self.items_in_cart()
+        assert i == 0, f"Failed to clear cart, {i} items remain"
 
     def active_sorting_method(self):
         return self._find(self._active_sorting_method).text
